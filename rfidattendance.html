@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<!-- saved from url=(0045)http://localhost/rfidattendance/dashboard.php -->
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Dashboard</title>
+    <link rel="icon" type="image/png" href="./rfidattendance_files/check-mark.png">
+    
+    <!-- Common CSS -->
+    <link rel="stylesheet" href="./rfidattendance_files/all.min.css">
+    <link rel="stylesheet" type="text/css" href="./rfidattendance_files/bootstrap.css">
+    <link rel="stylesheet" href="./rfidattendance_files/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="./rfidattendance_files/header.css">
+    <link rel="stylesheet" type="text/css" href="./rfidattendance_files/footer.css">
+    
+    <!-- Common JS -->
+    <script src="./rfidattendance_files/jquery-2.2.3.min.js.download"></script>
+    <script src="./rfidattendance_files/bootstrap.js.download"></script>    
+    <!-- Page-specific head content -->
+    
+            <link rel="stylesheet" href="./rfidattendance_files/Users.css">
+            
+            <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@5.10.2/main.min.css">
+            <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+            <script src="./rfidattendance_files/main.min.js.download"></script>
+            <script src="./rfidattendance_files/calendar.js.download"></script>
+            <script src="./rfidattendance_files/charts.js.download"></script>
+            <script src="./rfidattendance_files/dashboard.js.download"></script><link rel="stylesheet" href="chrome-extension://ihcjicgdanjaechkgeegckofjjedodee/app/content-style.css"></head>
+<body>
+    <!-- Preloader -->
+    <div id="preloader" class="preloader-hidden" style="display: none;">
+        <div class="loader">
+            <div class="loading-animation">
+                <div class="circle"></div>
+                <div class="circle"></div>
+                <div class="circle"></div>
+                <div class="shadow"></div>
+                <div class="shadow"></div>
+                <div class="shadow"></div>
+            </div>
+            <div class="loading-text">
+                <span>L</span><span>O</span><span>A</span><span>D</span><span>I</span><span>N</span><span>G</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Header Content -->
+    <header>
+        <!-- Login Message -->
+        
+        <!-- Navigation -->
+        <div class="navigation">
+            <ul>
+                <li>
+                    <a href="http://localhost/rfidattendance/index.php">
+                        <span class="icon">
+                            <img src="./rfidattendance_files/check-mark.png" alt="" class="logo-img">
+                        </span>
+                        <span class="title">ICHECK SYSTEM</span>
+                    </a>
+                </li>
+                <li class="active">
+                    <a href="http://localhost/rfidattendance/dashboard.php">
+                        <span class="icon"><i class="fas fa-tachometer-alt" title="Dashboard"></i></span>
+                        <span class="title">Dashboard</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="http://localhost/rfidattendance/UsersLog.php">
+                        <span class="icon"><i class="fas fa-user-check" title="User Logs"></i></span>
+                        <span class="title">Instructor Logs</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="http://localhost/rfidattendance/class_session.php">
+                        <span class="icon"><i class="fas fa-chalkboard-teacher" title="Class Sessions"></i></span>
+                        <span class="title">Class Sessions</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="http://localhost/rfidattendance/academic_class.php">
+                        <span class="icon"><i class="fas fa-book" title="Academic Classification"></i></span>
+                        <span class="title">Academic Classification</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="http://localhost/rfidattendance/faqs.php">
+                        <span class="icon"><i class="fas fa-question-circle" title="FAQs"></i></span>
+                        <span class="title">FAQs</span>
+                    </a>
+                </li>
+                
+                                    <li>
+                        <a href="http://localhost/rfidattendance/ManageUsers.php">
+                            <span class="icon"><i class="fas fa-users" title="Manage Instructor"></i></span>
+                            <span class="title">Manage Instructor</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="http://localhost/rfidattendance/dev_up.php">
+                            <span class="icon"><i class="fas fa-school" title="Semester"></i></span>
+                            <span class="title">Academic Terms</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="http://localhost/rfidattendance/firmware_manager.html">
+                            <span class="icon"><i class="fas fa-microchip" title="Firmware Management"></i></span>
+                            <span class="title">Firmware Management</span>
+                        </a>
+                    </li>
+                
+                <li>
+                    <a href="http://localhost/rfidattendance/login.php?action=logout">
+                        <span class="icon"><i class="fas fa-sign-out-alt" title="Sign out"></i></span>
+                        <span class="title">Sign Out</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+        <!-- Topbar -->
+        <div class="topbar">
+            <div class="topbar-icons">
+                <!-- Help Icon -->
+                <div class="help-icon" data-toggle="modal" data-target="#feedbackModal">
+                    <i class="fas fa-question-circle"></i>
+                </div>
+                
+                <!-- Notification Icon -->
+                <div class="notification-icon" id="notificationIcon">
+                    <i class="fas fa-bell"></i>
+                    <span class="notification-badge" id="notificationBadge" style="display: none;"></span>
+                </div>
+
+                <!-- Account Icon -->
+                                    <div class="account-icon" data-toggle="modal" data-target="#admin-account">
+                        <div class="user-icon">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <div class="user-name">
+                            <span class="title">Pxisen Desu</span>
+                        </div>
+                    </div>
+                
+                <!-- Notification Panel -->
+                <div class="notification-panel" id="notificationPanel">
+                    <div class="notification-header">
+                        <div class="notification-header-left">
+                            <h3>Notifications</h3>
+                            <span class="notification-count" id="notificationCount"></span>
+                        </div>
+                        <span class="mark-all-read" id="markAllRead">Mark all as read</span>
+                    </div>
+                    <div class="notification-list" style="display: block;">
+                        <!-- Empty State -->
+                        <div class="notification-empty-state" style="">
+                            <i class="fas fa-bell-slash"></i>
+                            <p>No notifications yet</p>
+                        </div>
+                        <!-- Notifications will be loaded here -->
+                    </div>
+                    <div class="notification-loading" style="display: none;">
+                        <div class="notification-loading-spinner">
+                            <i class="fas fa-spinner fa-spin"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Toggle -->
+                <div class="toggle">
+                    <i id="toggle-icon" class="fas fa-bars"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Alert containers -->
+        <div class="up_info1 alert-danger" style="position: fixed; top: 80px; right: 20px; z-index: 1000; max-width: 300px; display: none;"></div>
+        <div class="up_info2 alert-success" style="position: fixed; top: 80px; right: 20px; z-index: 1000; max-width: 300px; display: none;"></div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main style="opacity: 1;">
+        
+
+    <main>
+        <div class="dashboard-wrapper">
+            <div class="dashboard-header">
+                <h1>Dashboard</h1>
+                <h3>Instructor Classroom Hours Efficient Control Keeper</h3>
+            </div>
+            
+            <div class="dashboard-stats">
+                                <a href="http://localhost/rfidattendance/dashboard.php?page=overall" class="stat-box">
+                    <div class="stat-content">
+                        <div class="stat-count">20</div>
+                        <div class="stat-label">Overall &amp; Reports</div>
+                    </div>
+                    <div class="stat-icon">📊</div>
+                </a>
+                                <a href="http://localhost/rfidattendance/index.php?page=main&amp;type=dean" class="stat-box">
+                    <div class="stat-content">
+                        <div class="stat-count">8</div>
+                        <div class="stat-label">Admin</div>
+                    </div>
+                    <div class="stat-icon">🏛️</div>
+                </a>
+                                <a href="http://localhost/rfidattendance/index.php?page=main&amp;type=instructor" class="stat-box">
+                    <div class="stat-content">
+                        <div class="stat-count">7</div>
+                        <div class="stat-label">Instructor</div>
+                    </div>
+                    <div class="stat-icon">👨‍🏫</div>
+                </a>
+                                <a href="http://localhost/rfidattendance/index.php?page=main&amp;type=beadle" class="stat-box">
+                    <div class="stat-content">
+                        <div class="stat-count">5</div>
+                        <div class="stat-label">Beadle</div>
+                    </div>
+                    <div class="stat-icon">🧑‍🎓</div>
+                </a>
+                                <a href="http://localhost/rfidattendance/dev_up.php" class="stat-box">
+                    <div class="stat-content">
+                        <div class="stat-count">3</div>
+                        <div class="stat-label">Terms</div>
+                    </div>
+                    <div class="stat-icon">📚</div>
+                </a>
+                            </div>
+        </div>
+
+        <!-- Create and Delete modals -->
+            
+                <div id="eventModal" class="custom-modal">
+            <div class="custom-modal-content">
+                <div class="custom-modal-header">
+                    <h5 class="custom-modal-title">Create Event</h5>
+                    <span class="custom-modal-close">×</span>
+                </div>
+                <hr>
+                <div class="custom-modal-body">
+                    <!-- Form will be loaded here via AJAX -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Delete Confirmation Modal -->
+        <div id="deleteConfirmModal" class="custom-modal">
+            <div class="custom-modal-content">
+                <div class="custom-modal-header">
+                    <h5 class="custom-modal-title">Confirm Deletion</h5>
+                    <span class="custom-modal-close">×</span>
+                </div>
+                <hr>
+                <div class="custom-modal-body">
+                    <p>Are you sure you want to delete the selected events? This action cannot be undone.</p>
+                </div>
+                <div class="modal-footer">
+                    <button id="confirmDelete" class="btn btn-danger">Delete</button>
+                    <button type="button" class="btn btn-secondary modal-close">Cancel</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- end -->
+
+        <div class="floating-action-button">
+                    </div>
+
+        <div class="dashboard-content">
+            <div class="calendar-events-wrapper ">
+                <div class="calendar-section">
+                    <div id="calendar" class="dashboard-calendar fc fc-media-screen fc-direction-ltr fc-theme-standard"><div class="fc-header-toolbar fc-toolbar fc-toolbar-ltr"><div class="fc-toolbar-chunk"><div class="fc-button-group"><button type="button" title="Previous month" aria-pressed="false" class="fc-prev-button fc-button fc-button-primary"><span class="fc-icon fc-icon-chevron-left"></span></button><button type="button" title="Next month" aria-pressed="false" class="fc-next-button fc-button fc-button-primary"><span class="fc-icon fc-icon-chevron-right"></span></button></div><button type="button" title="This month" disabled="" aria-pressed="false" class="fc-today-button fc-button fc-button-primary">today</button></div><div class="fc-toolbar-chunk"><h2 class="fc-toolbar-title" id="fc-dom-1">November 2024</h2></div><div class="fc-toolbar-chunk"><div class="fc-button-group"><button type="button" title="month view" aria-pressed="true" class="fc-dayGridMonth-button fc-button fc-button-primary fc-button-active">month</button><button type="button" title="week view" aria-pressed="false" class="fc-timeGridWeek-button fc-button fc-button-primary">week</button><button type="button" title="day view" aria-pressed="false" class="fc-timeGridDay-button fc-button fc-button-primary">day</button></div></div></div><div aria-labelledby="fc-dom-1" class="fc-view-harness fc-view-harness-passive"><div class="fc-daygrid fc-dayGridMonth-view fc-view"><table role="grid" class="fc-scrollgrid "><thead role="rowgroup"><tr role="presentation" class="fc-scrollgrid-section fc-scrollgrid-section-header  fc-scrollgrid-section-sticky"><th role="presentation"><div class="fc-scroller-harness"><div class="fc-scroller" style="overflow: visible;"><table role="presentation" class="fc-col-header " style="width: 795px;"><colgroup></colgroup><thead role="presentation"><tr role="row"><th role="columnheader" class="fc-col-header-cell fc-day fc-day-sun"><div class="fc-scrollgrid-sync-inner"><a aria-label="Sunday" class="fc-col-header-cell-cushion ">Sun</a></div></th><th role="columnheader" class="fc-col-header-cell fc-day fc-day-mon"><div class="fc-scrollgrid-sync-inner"><a aria-label="Monday" class="fc-col-header-cell-cushion ">Mon</a></div></th><th role="columnheader" class="fc-col-header-cell fc-day fc-day-tue"><div class="fc-scrollgrid-sync-inner"><a aria-label="Tuesday" class="fc-col-header-cell-cushion ">Tue</a></div></th><th role="columnheader" class="fc-col-header-cell fc-day fc-day-wed"><div class="fc-scrollgrid-sync-inner"><a aria-label="Wednesday" class="fc-col-header-cell-cushion ">Wed</a></div></th><th role="columnheader" class="fc-col-header-cell fc-day fc-day-thu"><div class="fc-scrollgrid-sync-inner"><a aria-label="Thursday" class="fc-col-header-cell-cushion ">Thu</a></div></th><th role="columnheader" class="fc-col-header-cell fc-day fc-day-fri"><div class="fc-scrollgrid-sync-inner"><a aria-label="Friday" class="fc-col-header-cell-cushion ">Fri</a></div></th><th role="columnheader" class="fc-col-header-cell fc-day fc-day-sat"><div class="fc-scrollgrid-sync-inner"><a aria-label="Saturday" class="fc-col-header-cell-cushion ">Sat</a></div></th></tr></thead></table></div></div></th></tr></thead><tbody role="rowgroup"><tr role="presentation" class="fc-scrollgrid-section fc-scrollgrid-section-body "><td role="presentation"><div class="fc-scroller-harness"><div class="fc-scroller" style="overflow: visible;"><div class="fc-daygrid-body fc-daygrid-body-unbalanced fc-daygrid-body-natural" style="width: 795px;"><table role="presentation" class="fc-scrollgrid-sync-table" style="width: 795px;"><colgroup></colgroup><tbody role="presentation"><tr role="row"><td role="gridcell" class="fc-daygrid-day fc-day fc-day-sun fc-day-past fc-day-other" data-date="2024-10-27" aria-labelledby="fc-dom-2"><div class="fc-daygrid-day-frame fc-scrollgrid-sync-inner"><div class="fc-daygrid-day-top"><a id="fc-dom-2" class="fc-daygrid-day-number" aria-label="October 27, 2024">27</a></div><div class="fc-daygrid-day-events"><div class="fc-daygrid-day-bottom" style="margin-top: 0px;"></div></div><div class="fc-daygrid-day-bg"></div></div></td><td role="gridcell" class="fc-daygrid-day fc-day fc-day-mon fc-day-past fc-day-other" data-date="2024-10-28" aria-labelledby="fc-dom-4"><div class="fc-daygrid-day-frame fc-scrollgrid-sync-inner"><div class="fc-daygrid-day-top"><a id="fc-dom-4" class="fc-daygrid-day-number" aria-label="October 28, 2024">28</a></div><div class="fc-daygrid-day-events"><div class="fc-daygrid-day-bottom" style="margin-top: 0px;"></div></div><div class="fc-daygrid-day-bg"></div></div></td><td role="gridcell" class="fc-daygrid-day fc-day fc-day-tue fc-day-past fc-day-other" data-date="2024-10-29" aria-labelledby="fc-dom-6"><div class="fc-daygrid-day-frame fc-scrollgrid-sync-inner"><div class="fc-daygrid-day-top"><a id="fc-dom-6" class="fc-daygrid-day-number" aria-label="October 29, 2024">29</a></div><div class="fc-daygrid-day-events"><div class="fc-daygrid-day-bottom" style="margin-top: 0px;"></div></div><div class="fc-daygrid-day-bg"></div></div></td><td role="gridcell" class="fc-daygrid-day fc-day fc-day-wed fc-day-past fc-day-other" data-date="2024-10-30" aria-labelledby="fc-dom-8"><div class="fc-daygrid-day-frame fc-scrollgrid-sync-inner"><div class="fc-daygrid-day-top"><a id="fc-dom-8" class="fc-daygrid-day-number" aria-label="October 30, 2024">30</a></div><div class="fc-daygrid-day-events"><div class="fc-daygrid-day-bottom" style="margin-top: 0px;"></div></div><div class="fc-daygrid-day-bg"></div></div></td><td role="gridcell" class="fc-daygrid-day fc-day fc-day-thu fc-day-past fc-day-other" data-date="2024-10-31" aria-labelledby="fc-dom-10"><div class="fc-daygrid-day-frame fc-scrollgrid-sync-inner"><div class="fc-daygrid-day-top"><a id="fc-dom-10" class="fc-daygrid-day-number" aria-label="October 31, 2024">31</a></div><div class="fc-daygrid-day-events"><div class="fc-daygrid-day-bottom" style="margin-top: 0px;"></div></div><div class="fc-daygrid-day-bg"></div></div></td><td role="gridcell" class="fc-daygrid-day fc-day fc-day-fri fc-day-past" data-date="2024-11-01" aria-labelledby="fc-dom-12"><div class="fc-daygrid-day-frame fc-scrollgrid-sync-inner"><div class="fc-daygrid-day-top"><a id="fc-dom-12" class="fc-daygrid-day-number" aria-label="November 1, 2024">1</a></div><div class="fc-daygrid-day-events"><div class="fc-daygrid-day-bottom" style="margin-top: 0px;"></div></div><div class="fc-daygrid-day-bg"></div></div></td><td role="gridcell" class="fc-daygrid-day fc-day fc-day-sat fc-day-past" data-date="2024-11-02" aria-labelledby="fc-dom-14"><div class="fc-daygrid-day-frame fc-scrollgrid-sync-inner"><div class="fc-daygrid-day-top"><a id="fc-dom-14" class="fc-daygrid-day-number" aria-label="November 2, 2024">2</a></div><div class="fc-daygrid-day-events"><div class="fc-daygrid-day-bottom" style="margin-top: 0px;"></div></div><div class="fc-daygrid-day-bg"></div></div></td></tr><tr role="row"><td role="gridcell" class="fc-daygrid-day fc-day fc-day-sun fc-day-past" data-date="2024-11-03" aria-labelledby="fc-dom-16"><div class="fc-daygrid-day-frame fc-scrollgrid-sync-inner"><div class="fc-daygrid-day-top"><a id="fc-dom-16" class="fc-daygrid-day-number" aria-label="November 3, 2024">3</a></div><div class="fc-daygrid-day-events"><div class="fc-daygrid-day-bottom" style="margin-top: 0px;"></div></div><div class="fc-daygrid-day-bg"></div></div></td><td role="gridcell" class="fc-daygrid-day fc-day fc-day-mon fc-day-past" data-date="2024-11-04" aria-labelledby="fc-dom-18"><div class="fc-daygrid-day-frame fc-scrollgrid-sync-inner"><div class="fc-daygrid-day-top"><a id="fc-dom-18" class="fc-daygrid-day-number" aria-label="November 4, 2024">4</a></div><div class="fc-daygrid-day-events"><div class="fc-daygrid-day-bottom" style="margin-top: 0px;"></div></div><div class="fc-daygrid-day-bg"></div></div></td><td role="gridcell" class="fc-daygrid-day fc-day fc-day-tue fc-day-past" data-date="2024-11-05" aria-labelledby="fc-dom-20"><div class="fc-daygrid-day-frame fc-scrollgrid-sync-inner"><div class="fc-daygrid-day-top"><a id="fc-dom-20" class="fc-daygrid-day-number" aria-label="November 5, 2024">5</a></div><div class="fc-daygrid-day-events"><div class="fc-daygrid-day-bottom" style="margin-top: 0px;"></div></div><div class="fc-daygrid-day-bg"></div></div></td><td role="gridcell" class="fc-daygrid-day fc-day fc-day-wed fc-day-past" data-date="2024-11-06" aria-labelledby="fc-dom-22"><div class="fc-daygrid-day-frame fc-scrollgrid-sync-inner"><div class="fc-daygrid-day-top"><a id="fc-dom-22" class="fc-daygrid-day-number" aria-label="November 6, 2024">6</a></div><div class="fc-daygrid-day-events"><div class="fc-daygrid-day-bottom" style="margin-top: 0px;"></div></div><div class="fc-daygrid-day-bg"></div></div></td><td role="gridcell" class="fc-daygrid-day fc-day fc-day-thu fc-day-past" data-date="2024-11-07" aria-labelledby="fc-dom-24"><div class="fc-daygrid-day-frame fc-scrollgrid-sync-inner"><div class="fc-daygrid-day-top"><a id="fc-dom-24" class="fc-daygrid-day-number" aria-label="November 7, 2024">7</a></div><div class="fc-daygrid-day-events"><div class="fc-daygrid-day-bottom" style="margin-top: 0px;"></div></div><div class="fc-daygrid-day-bg"></div></div></td><td role="gridcell" class="fc-daygrid-day fc-day fc-day-fri fc-day-past" data-date="2024-11-08" aria-labelledby="fc-dom-26"><div class="fc-daygrid-day-frame fc-scrollgrid-sync-inner"><div class="fc-daygrid-day-top"><a id="fc-dom-26" class="fc-daygrid-day-number" aria-label="November 8, 2024">8</a></div><div class="fc-daygrid-day-events"><div class="fc-daygrid-day-bottom" style="margin-top: 0px;"></div></div><div class="fc-daygrid-day-bg"></div></div></td><td role="gridcell" class="fc-daygrid-day fc-day fc-day-sat fc-day-past" data-date="2024-11-09" aria-labelledby="fc-dom-28"><div class="fc-daygrid-day-frame fc-scrollgrid-sync-inner"><div class="fc-daygrid-day-top"><a id="fc-dom-28" class="fc-daygrid-day-number" aria-label="November 9, 2024">9</a></div><div class="fc-daygrid-day-events"><div class="fc-daygrid-day-bottom" style="margin-top: 0px;"></div></div><div class="fc-daygrid-day-bg"></div></div></td></tr><tr role="row"><td role="gridcell" class="fc-daygrid-day fc-day fc-day-sun fc-day-past" data-date="2024-11-10" aria-labelledby="fc-dom-30"><div class="fc-daygrid-day-frame fc-scrollgrid-sync-inner"><div class="fc-daygrid-day-top"><a id="fc-dom-30" class="fc-daygrid-day-number" aria-label="November 10, 2024">10</a></div><div class="fc-daygrid-day-events"><div class="fc-daygrid-day-bottom" style="margin-top: 0px;"></div></div><div class="fc-daygrid-day-bg"></div></div></td><td role="gridcell" class="fc-daygrid-day fc-day fc-day-mon fc-day-past" data-date="2024-11-11" aria-labelledby="fc-dom-32"><div class="fc-daygrid-day-frame fc-scrollgrid-sync-inner"><div class="fc-daygrid-day-top"><a id="fc-dom-32" class="fc-daygrid-day-number" aria-label="November 11, 2024">11</a></div><div class="fc-daygrid-day-events"><div class="fc-daygrid-day-bottom" style="margin-top: 0px;"></div></div><div class="fc-daygrid-day-bg"></div></div></td><td role="gridcell" class="fc-daygrid-day fc-day fc-day-tue fc-day-past" data-date="2024-11-12" aria-labelledby="fc-dom-34"><div class="fc-daygrid-day-frame fc-scrollgrid-sync-inner"><div class="fc-daygrid-day-top"><a id="fc-dom-34" class="fc-daygrid-day-number" aria-label="November 12, 2024">12</a></div><div class="fc-daygrid-day-events"><div class="fc-daygrid-day-bottom" style="margin-top: 0px;"></div></div><div class="fc-daygrid-day-bg"></div></div></td><td role="gridcell" class="fc-daygrid-day fc-day fc-day-wed fc-day-past" data-date="2024-11-13" aria-labelledby="fc-dom-36"><div class="fc-daygrid-day-frame fc-scrollgrid-sync-inner"><div class="fc-daygrid-day-top"><a id="fc-dom-36" class="fc-daygrid-day-number" aria-label="November 13, 2024">13</a></div><div class="fc-daygrid-day-events"><div class="fc-daygrid-day-bottom" style="margin-top: 0px;"></div></div><div class="fc-daygrid-day-bg"></div></div></td><td role="gridcell" class="fc-daygrid-day fc-day fc-day-thu fc-day-past" data-date="2024-11-14" aria-labelledby="fc-dom-38"><div class="fc-daygrid-day-frame fc-scrollgrid-sync-inner"><div class="fc-daygrid-day-top"><a id="fc-dom-38" class="fc-daygrid-day-number" aria-label="November 14, 2024">14</a></div><div class="fc-daygrid-day-events"><div class="fc-daygrid-day-bottom" style="margin-top: 0px;"></div></div><div class="fc-daygrid-day-bg"></div></div></td><td role="gridcell" class="fc-daygrid-day fc-day fc-day-fri fc-day-past" data-date="2024-11-15" aria-labelledby="fc-dom-40"><div class="fc-daygrid-day-frame fc-scrollgrid-sync-inner"><div class="fc-daygrid-day-top"><a id="fc-dom-40" class="fc-daygrid-day-number" aria-label="November 15, 2024">15</a></div><div class="fc-daygrid-day-events"><div class="fc-daygrid-day-bottom" style="margin-top: 0px;"></div></div><div class="fc-daygrid-day-bg"></div></div></td><td role="gridcell" class="fc-daygrid-day fc-day fc-day-sat fc-day-past" data-date="2024-11-16" aria-labelledby="fc-dom-42"><div class="fc-daygrid-day-frame fc-scrollgrid-sync-inner"><div class="fc-daygrid-day-top"><a id="fc-dom-42" class="fc-daygrid-day-number" aria-label="November 16, 2024">16</a></div><div class="fc-daygrid-day-events"><div class="fc-daygrid-day-bottom" style="margin-top: 0px;"></div></div><div class="fc-daygrid-day-bg"></div></div></td></tr><tr role="row"><td role="gridcell" class="fc-daygrid-day fc-day fc-day-sun fc-day-past" data-date="2024-11-17" aria-labelledby="fc-dom-44"><div class="fc-daygrid-day-frame fc-scrollgrid-sync-inner"><div class="fc-daygrid-day-top"><a id="fc-dom-44" class="fc-daygrid-day-number" aria-label="November 17, 2024">17</a></div><div class="fc-daygrid-day-events"><div class="fc-daygrid-day-bottom" style="margin-top: 0px;"></div></div><div class="fc-daygrid-day-bg"></div></div></td><td role="gridcell" class="fc-daygrid-day fc-day fc-day-mon fc-day-past" data-date="2024-11-18" aria-labelledby="fc-dom-46"><div class="fc-daygrid-day-frame fc-scrollgrid-sync-inner"><div class="fc-daygrid-day-top"><a id="fc-dom-46" class="fc-daygrid-day-number" aria-label="November 18, 2024">18</a></div><div class="fc-daygrid-day-events"><div class="fc-daygrid-day-bottom" style="margin-top: 0px;"></div></div><div class="fc-daygrid-day-bg"></div></div></td><td role="gridcell" class="fc-daygrid-day fc-day fc-day-tue fc-day-past" data-date="2024-11-19" aria-labelledby="fc-dom-48"><div class="fc-daygrid-day-frame fc-scrollgrid-sync-inner"><div class="fc-daygrid-day-top"><a id="fc-dom-48" class="fc-daygrid-day-number" aria-label="November 19, 2024">19</a></div><div class="fc-daygrid-day-events"><div class="fc-daygrid-day-bottom" style="margin-top: 0px;"></div></div><div class="fc-daygrid-day-bg"></div></div></td><td role="gridcell" class="fc-daygrid-day fc-day fc-day-wed fc-day-today " data-date="2024-11-20" aria-labelledby="fc-dom-50"><div class="fc-daygrid-day-frame fc-scrollgrid-sync-inner"><div class="fc-daygrid-day-top"><a id="fc-dom-50" class="fc-daygrid-day-number" aria-label="November 20, 2024">20</a></div><div class="fc-daygrid-day-events"><div class="fc-daygrid-day-bottom" style="margin-top: 0px;"></div></div><div class="fc-daygrid-day-bg"></div></div></td><td role="gridcell" class="fc-daygrid-day fc-day fc-day-thu fc-day-future" data-date="2024-11-21" aria-labelledby="fc-dom-52"><div class="fc-daygrid-day-frame fc-scrollgrid-sync-inner"><div class="fc-daygrid-day-top"><a id="fc-dom-52" class="fc-daygrid-day-number" aria-label="November 21, 2024">21</a></div><div class="fc-daygrid-day-events"><div class="fc-daygrid-day-bottom" style="margin-top: 0px;"></div></div><div class="fc-daygrid-day-bg"></div></div></td><td role="gridcell" class="fc-daygrid-day fc-day fc-day-fri fc-day-future" data-date="2024-11-22" aria-labelledby="fc-dom-54"><div class="fc-daygrid-day-frame fc-scrollgrid-sync-inner"><div class="fc-daygrid-day-top"><a id="fc-dom-54" class="fc-daygrid-day-number" aria-label="November 22, 2024">22</a></div><div class="fc-daygrid-day-events"><div class="fc-daygrid-day-bottom" style="margin-top: 0px;"></div></div><div class="fc-daygrid-day-bg"></div></div></td><td role="gridcell" class="fc-daygrid-day fc-day fc-day-sat fc-day-future" data-date="2024-11-23" aria-labelledby="fc-dom-56"><div class="fc-daygrid-day-frame fc-scrollgrid-sync-inner"><div class="fc-daygrid-day-top"><a id="fc-dom-56" class="fc-daygrid-day-number" aria-label="November 23, 2024">23</a></div><div class="fc-daygrid-day-events"><div class="fc-daygrid-day-bottom" style="margin-top: 0px;"></div></div><div class="fc-daygrid-day-bg"></div></div></td></tr><tr role="row"><td role="gridcell" class="fc-daygrid-day fc-day fc-day-sun fc-day-future" data-date="2024-11-24" aria-labelledby="fc-dom-58"><div class="fc-daygrid-day-frame fc-scrollgrid-sync-inner"><div class="fc-daygrid-day-top"><a id="fc-dom-58" class="fc-daygrid-day-number" aria-label="November 24, 2024">24</a></div><div class="fc-daygrid-day-events"><div class="fc-daygrid-day-bottom" style="margin-top: 0px;"></div></div><div class="fc-daygrid-day-bg"></div></div></td><td role="gridcell" class="fc-daygrid-day fc-day fc-day-mon fc-day-future" data-date="2024-11-25" aria-labelledby="fc-dom-60"><div class="fc-daygrid-day-frame fc-scrollgrid-sync-inner"><div class="fc-daygrid-day-top"><a id="fc-dom-60" class="fc-daygrid-day-number" aria-label="November 25, 2024">25</a></div><div class="fc-daygrid-day-events"><div class="fc-daygrid-day-bottom" style="margin-top: 0px;"></div></div><div class="fc-daygrid-day-bg"></div></div></td><td role="gridcell" class="fc-daygrid-day fc-day fc-day-tue fc-day-future" data-date="2024-11-26" aria-labelledby="fc-dom-62"><div class="fc-daygrid-day-frame fc-scrollgrid-sync-inner"><div class="fc-daygrid-day-top"><a id="fc-dom-62" class="fc-daygrid-day-number" aria-label="November 26, 2024">26</a></div><div class="fc-daygrid-day-events"><div class="fc-daygrid-day-bottom" style="margin-top: 0px;"></div></div><div class="fc-daygrid-day-bg"></div></div></td><td role="gridcell" class="fc-daygrid-day fc-day fc-day-wed fc-day-future" data-date="2024-11-27" aria-labelledby="fc-dom-64"><div class="fc-daygrid-day-frame fc-scrollgrid-sync-inner"><div class="fc-daygrid-day-top"><a id="fc-dom-64" class="fc-daygrid-day-number" aria-label="November 27, 2024">27</a></div><div class="fc-daygrid-day-events"><div class="fc-daygrid-day-bottom" style="margin-top: 0px;"></div></div><div class="fc-daygrid-day-bg"></div></div></td><td role="gridcell" class="fc-daygrid-day fc-day fc-day-thu fc-day-future" data-date="2024-11-28" aria-labelledby="fc-dom-66"><div class="fc-daygrid-day-frame fc-scrollgrid-sync-inner"><div class="fc-daygrid-day-top"><a id="fc-dom-66" class="fc-daygrid-day-number" aria-label="November 28, 2024">28</a></div><div class="fc-daygrid-day-events"><div class="fc-daygrid-day-bottom" style="margin-top: 0px;"></div></div><div class="fc-daygrid-day-bg"></div></div></td><td role="gridcell" class="fc-daygrid-day fc-day fc-day-fri fc-day-future" data-date="2024-11-29" aria-labelledby="fc-dom-68"><div class="fc-daygrid-day-frame fc-scrollgrid-sync-inner"><div class="fc-daygrid-day-top"><a id="fc-dom-68" class="fc-daygrid-day-number" aria-label="November 29, 2024">29</a></div><div class="fc-daygrid-day-events"><div class="fc-daygrid-day-bottom" style="margin-top: 0px;"></div></div><div class="fc-daygrid-day-bg"></div></div></td><td role="gridcell" class="fc-daygrid-day fc-day fc-day-sat fc-day-future" data-date="2024-11-30" aria-labelledby="fc-dom-70"><div class="fc-daygrid-day-frame fc-scrollgrid-sync-inner"><div class="fc-daygrid-day-top"><a id="fc-dom-70" class="fc-daygrid-day-number" aria-label="November 30, 2024">30</a></div><div class="fc-daygrid-day-events"><div class="fc-daygrid-day-bottom" style="margin-top: 0px;"></div></div><div class="fc-daygrid-day-bg"></div></div></td></tr><tr role="row"><td role="gridcell" class="fc-daygrid-day fc-day fc-day-sun fc-day-future fc-day-other" data-date="2024-12-01" aria-labelledby="fc-dom-72"><div class="fc-daygrid-day-frame fc-scrollgrid-sync-inner"><div class="fc-daygrid-day-top"><a id="fc-dom-72" class="fc-daygrid-day-number" aria-label="December 1, 2024">1</a></div><div class="fc-daygrid-day-events"><div class="fc-daygrid-day-bottom" style="margin-top: 0px;"></div></div><div class="fc-daygrid-day-bg"></div></div></td><td role="gridcell" class="fc-daygrid-day fc-day fc-day-mon fc-day-future fc-day-other" data-date="2024-12-02" aria-labelledby="fc-dom-74"><div class="fc-daygrid-day-frame fc-scrollgrid-sync-inner"><div class="fc-daygrid-day-top"><a id="fc-dom-74" class="fc-daygrid-day-number" aria-label="December 2, 2024">2</a></div><div class="fc-daygrid-day-events"><div class="fc-daygrid-day-bottom" style="margin-top: 0px;"></div></div><div class="fc-daygrid-day-bg"></div></div></td><td role="gridcell" class="fc-daygrid-day fc-day fc-day-tue fc-day-future fc-day-other" data-date="2024-12-03" aria-labelledby="fc-dom-76"><div class="fc-daygrid-day-frame fc-scrollgrid-sync-inner"><div class="fc-daygrid-day-top"><a id="fc-dom-76" class="fc-daygrid-day-number" aria-label="December 3, 2024">3</a></div><div class="fc-daygrid-day-events"><div class="fc-daygrid-day-bottom" style="margin-top: 0px;"></div></div><div class="fc-daygrid-day-bg"></div></div></td><td role="gridcell" class="fc-daygrid-day fc-day fc-day-wed fc-day-future fc-day-other" data-date="2024-12-04" aria-labelledby="fc-dom-78"><div class="fc-daygrid-day-frame fc-scrollgrid-sync-inner"><div class="fc-daygrid-day-top"><a id="fc-dom-78" class="fc-daygrid-day-number" aria-label="December 4, 2024">4</a></div><div class="fc-daygrid-day-events"><div class="fc-daygrid-day-bottom" style="margin-top: 0px;"></div></div><div class="fc-daygrid-day-bg"></div></div></td><td role="gridcell" class="fc-daygrid-day fc-day fc-day-thu fc-day-future fc-day-other" data-date="2024-12-05" aria-labelledby="fc-dom-80"><div class="fc-daygrid-day-frame fc-scrollgrid-sync-inner"><div class="fc-daygrid-day-top"><a id="fc-dom-80" class="fc-daygrid-day-number" aria-label="December 5, 2024">5</a></div><div class="fc-daygrid-day-events"><div class="fc-daygrid-day-bottom" style="margin-top: 0px;"></div></div><div class="fc-daygrid-day-bg"></div></div></td><td role="gridcell" class="fc-daygrid-day fc-day fc-day-fri fc-day-future fc-day-other" data-date="2024-12-06" aria-labelledby="fc-dom-82"><div class="fc-daygrid-day-frame fc-scrollgrid-sync-inner"><div class="fc-daygrid-day-top"><a id="fc-dom-82" class="fc-daygrid-day-number" aria-label="December 6, 2024">6</a></div><div class="fc-daygrid-day-events"><div class="fc-daygrid-day-bottom" style="margin-top: 0px;"></div></div><div class="fc-daygrid-day-bg"></div></div></td><td role="gridcell" class="fc-daygrid-day fc-day fc-day-sat fc-day-future fc-day-other" data-date="2024-12-07" aria-labelledby="fc-dom-84"><div class="fc-daygrid-day-frame fc-scrollgrid-sync-inner"><div class="fc-daygrid-day-top"><a id="fc-dom-84" class="fc-daygrid-day-number" aria-label="December 7, 2024">7</a></div><div class="fc-daygrid-day-events"><div class="fc-daygrid-day-bottom" style="margin-top: 0px;"></div></div><div class="fc-daygrid-day-bg"></div></div></td></tr></tbody></table></div></div></div></td></tr></tbody></table></div></div></div>
+                </div>
+
+                <div class="events-section ">
+                    <div class="events-header">
+                        <h2>Upcoming Events</h2>
+                                                <div class="events-controls">
+                            <button id="toggleEventSelection" class="btn btn-primary" style="background-color: green;">Select Events</button>
+                            <button id="deleteSelectedEvents" class="btn btn-danger" style="display: none;">Delete Selected</button>
+                            <button id="cancelSelection" class="btn btn-secondary" style="display: none;">Cancel</button>
+                        </div>
+                                            </div>
+                    <div class="events-container">
+                                                    <div class="no-events">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                                <line x1="16" y1="2" x2="16" y2="6"></line>
+                                <line x1="8" y1="2" x2="8" y2="6"></line>
+                                <line x1="3" y1="10" x2="21" y2="10"></line>
+                            </svg>
+                            <p>No posted events yet. Stay tuned!</p>
+                            </div>
+                                            </div>
+                </div>
+            </div>
+
+                    </div>
+    </main>
+    </main>
+
+    <!-- Common Footer -->
+    <footer style="opacity: 1;">
+        <footer class="site-footer">
+    <div class="container">
+      <div class="row">
+        <div class="col-md-4">
+          <h4>About iCheck System</h4>
+          <p>iCheck System is a comprehensive attendance management solution designed to streamline the process of tracking and managing attendance in educational institutions.</p>
+        </div>
+
+        <div class="col-md-4">
+          <h4>Quick Links</h4>
+          <ul class="footer-links">
+            <li><a href="http://localhost/rfidattendance/dashboard.php"><i class="fas fa-home"></i>Home</a></li>
+            <li><a href="http://localhost/rfidattendance/faqs.php"><i class="fas fa-question-circle"></i>FAQs</a></li>
+            <li><a href="http://localhost/rfidattendance/dashboard.php#"><i class="fas fa-lock"></i>Privacy Policy</a></li>
+          </ul>
+        </div>
+
+        <div class="col-md-4">
+          <h4>Contact Us</h4>
+          <ul class="footer-links">
+            <li><a href="mailto:support@ichecksystem.com"><i class="fas fa-envelope"></i>support@ichecksystem.com</a></li>
+            <li><a href="tel:+63916484716"><i class="fas fa-phone"></i>+63 916 484 1716</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-md-12">
+          <hr>
+          <p class="copyright-text">Copyright © 2024 All Rights Reserved by <a href="http://localhost/rfidattendance/dashboard.php#">iCheck System</a>.</p>
+        </div>
+      </div>
+    </div>
+  </footer>    </footer>
+
+    <!-- Feedback/Request Status Modal -->
+<div class="modal fade" id="feedbackStatusModal" tabindex="-1" role="dialog" aria-labelledby="Status Modal" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Feedback Details</h3>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="feedback-info">
+                    <!-- This will be populated dynamically -->
+                </div>
+                <div class="form-group mt-3">
+                    <label for="statusSelect"><b>Update Status:</b></label>
+                    <select id="statusSelect" class="form-control status-select" style="padding: 2px;">
+                        <!-- Options will be populated dynamically based on type -->
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary update-status-btn">Update Status</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="feedbackModal" tabindex="-1" role="dialog" aria-labelledby="Feedback Form" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Submit Your Feedback/Request</h3>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
+            <form id="feedbackForm">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="feedbackName"><b>Full Name:</b></label>
+                        <input type="text" name="name" id="feedbackName" placeholder="Enter your Name (Optional)..." class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label for="feedbackEmail"><b>E-mail:</b></label>
+                        <input type="email" name="email" id="feedbackEmail" placeholder="Enter your E-mail..." required="" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label for="concernType"><b>Nature of Concern:</b></label>
+                        <select name="concernType" id="concernType" class="form-control" style="padding: 2px;" required="">
+                            <option value="">Select concern type...</option>
+                            <option value="feedback">Feedback</option>
+                            <option value="request">Request</option>
+                        </select>
+                    </div>
+                    <!-- Course field - initially hidden -->
+                    <div class="form-group" id="courseGroup" style="display: none;">
+                        <label for="course"><b>Course:</b></label>
+                        <select name="course" id="course" class="form-control" style="padding: 2px;">
+                            <option value="">Select your course...</option>
+                                                            <option value="BSA">
+                                    BSA                                </option>
+                                                            <option value="BSArchi">
+                                    BSArchi                                </option>
+                                                            <option value="BSCE">
+                                    BSCE                                </option>
+                                                            <option value="BSCRIM">
+                                    BSCRIM                                </option>
+                                                            <option value="BSED">
+                                    BSED                                </option>
+                                                            <option value="BSHRM">
+                                    BSHRM                                </option>
+                                                            <option value="BSIT">
+                                    BSIT                                </option>
+                                                            <option value="BSN">
+                                    BSN                                </option>
+                                                            <option value="IT">
+                                    IT                                </option>
+                                                    </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="feedbackComment"><b>Details:</b></label>
+                        <textarea name="comment" id="feedbackComment" placeholder="Please provide the details regarding the nature of you concern..." required="" class="form-control" style="height: 100px; resize: none;"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer" style="justify-content: flex-start;">
+                    <a href="http://localhost/rfidattendance/faqs.php" class="btn btn-primary" style="margin-right: auto;">Read FAQs</a>
+                    <div>
+                        <button type="submit" class="btn btn-success">Submit</button>
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Admin Account Update Modal -->
+<div class="modal fade" id="admin-account" tabindex="-1" role="dialog" aria-labelledby="Admin Update" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title" id="exampleModalLongTitle">Update Your Account Info:</h3>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">×</span>
+        </button> 
+      </div>
+      <form action="http://localhost/rfidattendance/req/ac_update.php" method="POST" enctype="multipart/form-data">
+        <div class="modal-body">
+            <input type="hidden" name="user_type" value="admin">
+            <div class="row">
+            <div class="col-md-6">
+                <label for="up_name"><b>Full Name:</b></label>
+                <input type="text" name="up_name" placeholder="Enter your Name..." value="Pxisen Desu" required="">
+            </div>
+            <div class="col-md-6">
+                <label for="up_email"><b>E-mail:</b></label>
+                <input type="email" name="up_email" placeholder="Enter your E-mail..." value="ruiz.james@gmail.com" required="">
+            </div>
+            </div>
+            <label for="up_gender"><b>Gender:</b></label>
+            <select name="up_gender" required="">
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+                <option value="Other">Other</option>
+            </select><br>
+            <label for="up_pwd"><b>Current Password:</b></label>
+            <input type="password" name="up_pwd" placeholder="Enter your current Password..." required=""><br>
+            <label for="new_pwd"><b>New Password:</b></label>
+            <input type="password" name="new_pwd" placeholder="Enter your new Password (leave blank if unchanged)"><br>
+        </div>
+        <div class="modal-footer">
+            <button type="submit" name="update" class="btn btn-success">Save changes</button>
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        </div>
+        </form>
+    </div>
+  </div>
+</div>
+
+<!-- Beadle Account Update Modal -->
+<div class="modal fade" id="beadle-account" tabindex="-1" role="dialog" aria-labelledby="Beadle Update" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title" id="exampleModalLongTitle">Update Your Account Info:</h3>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">×</span>
+        </button> 
+      </div>
+      <form action="http://localhost/rfidattendance/req/ac_update.php" method="POST" enctype="multipart/form-data">
+        <div class="modal-body">
+            <input type="hidden" name="user_type" value="beadle">
+            <div class="row">
+            <div class="col-md-6">
+                <label for="beadle_code"><b>Beadle Code:</b></label>
+                <input type="text" name="beadle_code" id="beadle_code" class="form-control" value="" disabled="" readonly="" style="background-color: #f2f2f2;">
+                <label for="up_email"><b>E-mail:</b></label>
+                <input type="email" name="up_email" placeholder="Enter your E-mail..." value="" required="">
+            </div>
+            <div class="col-md-6">
+                <label for="up_name"><b>Full Name:</b></label>
+                <input type="text" name="up_name" placeholder="Enter your Name..." value="" required="">
+                <label for="up_gender"><b>Gender:</b></label>
+                <select name="up_gender" required="">
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+                <option value="Other">Other</option>
+                </select>
+            </div>
+            </div>
+            <label for="up_pwd"><b>Current Password:</b></label>
+            <input type="password" name="up_pwd" placeholder="Enter your current Password..." required=""><br>
+            <label for="new_pwd"><b>New Password:</b></label>
+            <input type="password" name="new_pwd" placeholder="Enter your new Password (leave blank if unchanged)"><br>
+        </div>
+        <div class="modal-footer">
+            <button type="submit" name="update" class="btn btn-success">Save changes</button>
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        </div>
+        </form>
+    </div>
+  </div>
+</div>
+    <!-- Common JavaScript -->
+    <script src="./rfidattendance_files/toggle.js.download"></script>
+    
+<script>
+    var allUserData = [{"fullname":"Pxisen Desu","gender":"Male","course":"Tech","department":"Technical Team","user_type":"IT"},{"fullname":"Haide Galdo","gender":"Female","course":"BSIT","department":"Computer Studies","user_type":"instructor"},{"fullname":"Leo Hoyla","gender":"Male","course":"BSCRIM","department":"Criminology","user_type":"instructor"},{"fullname":"Marnuld Climaco","gender":"Male","course":"BSCE","department":"Engineering","user_type":"instructor"},{"fullname":"Vangie Javier","gender":"Others","course":"BSA","department":"Accountancy","user_type":"instructor"},{"fullname":"Jonathan Tse","gender":"Others","course":"BSHRM","department":"Human Management","user_type":"instructor"},{"fullname":"Jose Rizal","gender":"Male","course":"BSN","department":"Nursing","user_type":"instructor"},{"fullname":"Maria Clara","gender":"Female","course":"BSArchi","department":"Architecture","user_type":"instructor"},{"fullname":"Nami","gender":"Female","course":"BSA","department":"Accountancy","user_type":"dean"},{"fullname":"Sanji","gender":"Male","course":"BSArchi","department":"Architecture","user_type":"dean"},{"fullname":"Zoro","gender":"Male","course":"BSCE","department":"Engineering","user_type":"dean"},{"fullname":"Chopper","gender":"Other","course":"BSCRIM","department":"Criminology","user_type":"dean"},{"fullname":"Franky","gender":"Male","course":"BSHRM","department":"Human Management","user_type":"dean"},{"fullname":"Robin","gender":"Female","course":"BSN","department":"Nursing","user_type":"dean"},{"fullname":"Luffy","gender":"Male","course":"BSIT","department":"Computer Studies","user_type":"dean"},{"fullname":"James Ruiz","gender":"Male","course":"BSA","department":"Accountancy","user_type":"beadle"},{"fullname":"Romel Pia","gender":"Male","course":"BSArchi","department":"Architecture","user_type":"beadle"},{"fullname":"Karyle Delalamon","gender":"Female","course":"BSCRIM","department":"Criminology","user_type":"beadle"},{"fullname":"Earl Mangmang","gender":"Other","course":"BSIT","department":"Computer Studies","user_type":"beadle"},{"fullname":"Paul Sabangan","gender":"Male","course":"BSHRM","department":"Human Management","user_type":"beadle"}];
+    var allLogsData = [{"session_type":"Regular","in_status":"On Time","out_status":"On Time","course":"BSIT"},{"session_type":"Advance","in_status":"Special","out_status":"Special","course":"BSArchi"},{"session_type":"Regular","in_status":"On Time","out_status":"Left Early","course":"BSIT"}];
+</script>
+
+<scribe-shadow id="crxjs-ext" style="position: fixed; width: 0px; height: 0px; top: 0px; left: 0px; z-index: 2147483647; overflow: visible; visibility: visible;"><template shadowrootmode="open"><div id="root-scribe-elem" style="position: fixed; width: 0px; height: 0px; top: 0px; left: 0px; overflow: visible; color: rgb(15, 23, 42);"><div role="region" aria-label="Notifications (F8)" tabindex="-1" style="pointer-events: none;"><ol tabindex="-1" class="fixed bottom-auto right-0 top-0 z-[99999] flex max-h-screen w-[400px] max-w-full p-4"></ol></div></div><link rel="stylesheet" href="chrome-extension://okfkdaglfjjjfefdcppliegebpoegaii/assets/style.css"></template></scribe-shadow></body></html>

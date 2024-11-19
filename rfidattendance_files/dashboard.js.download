@@ -1,0 +1,252 @@
+// Wait for DOM to be fully loaded
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize global variables
+    const tableView = document.getElementById('tableView');
+    const chartView = document.getElementById('chartView');
+    const toggleButton = document.getElementById('toggleEventSelection');
+    const deleteButton = document.getElementById('deleteSelectedEvents');
+    const cancelButton = document.getElementById('cancelSelection');
+    const eventCards = document.querySelectorAll('.event-card');
+    const deleteModal = document.getElementById('deleteConfirmModal');
+    const modalClose = document.querySelector('.custom-modal-close');
+    const cancelDelete = document.getElementById('cancelDelete');
+    const confirmDelete = document.getElementById('confirmDelete');
+    const toggleViewBtn = document.getElementById('toggle-view');
+    const eventsSection = document.querySelector('.events-section');
+    const entryLimitContainer = document.getElementById('entryLimitContainer');
+    const entryLimit = document.getElementById('entryLimit');
+    const viewToggle = document.querySelectorAll('input[name="view"]');
+
+    // Function to render table with limit
+    function renderTable(data, limit) {
+        const tbody = document.querySelector('#userTable tbody');
+        if (!tbody) return;
+
+        tbody.innerHTML = '';
+        const numEntries = limit === 'all' ? data.length : parseInt(limit);
+        const entriesToShow = data.slice(0, numEntries);
+
+        entriesToShow.forEach((user, index) => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${index + 1}</td>
+                <td class="user-name">${escapeHtml(user.fullname)}</td>
+                <td>${escapeHtml(user.gender)}</td>
+                <td>${escapeHtml(user.course)}</td>
+                <td>${escapeHtml(user.department)}</td>
+                <td>${escapeHtml(user.user_type)}</td>
+            `;
+            tbody.appendChild(row);
+        });
+    }
+
+    // Helper function to escape HTML
+    function escapeHtml(unsafe) {
+        return unsafe
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+    }
+
+    // Initialize table with default limit of 5
+    if (allUserData) {
+        renderTable(allUserData, '5');
+    }
+
+    // Event Selection Functions
+    function toggleSelectionMode(show) {
+        if (deleteButton) deleteButton.style.display = show ? 'inline-block' : 'none';
+        if (cancelButton) cancelButton.style.display = show ? 'inline-block' : 'none';
+        if (toggleButton) toggleButton.style.display = show ? 'none' : 'inline-block';
+
+        eventCards.forEach(card => {
+            const selectBox = card.querySelector('.event-select');
+            if (selectBox) {
+                selectBox.style.display = show ? 'block' : 'none';
+            }
+            card.classList.toggle('selection-mode', show);
+        });
+
+        if (!show) {
+            document.querySelectorAll('.event-checkbox').forEach(cb => {
+                cb.checked = false;
+            });
+        }
+    }
+
+    // Entry limit change handler
+    if (entryLimit) {
+        entryLimit.addEventListener('change', function() {
+            renderTable(allUserData, this.value);
+        });
+    }
+
+    // Event Handlers
+    if (toggleButton) {
+        toggleButton.addEventListener('click', () => toggleSelectionMode(true));
+    }
+
+    if (cancelButton) {
+        cancelButton.addEventListener('click', () => toggleSelectionMode(false));
+    }
+
+    if (deleteButton) {
+        deleteButton.addEventListener('click', () => {
+            const selectedEvents = Array.from(document.querySelectorAll('.event-checkbox:checked'))
+                .map(cb => cb.dataset.eventId);
+
+            if (selectedEvents.length === 0) {
+                alert('Please select at least one event to delete.');
+                return;
+            }
+
+            if (deleteModal) {
+                deleteModal.style.display = 'block';
+            }
+        });
+    }
+
+    // Update the showMessage function in both files:
+    function showMessage(message, type) {
+        const messageDiv = document.createElement('div');
+        messageDiv.textContent = message;
+        messageDiv.className = `alert alert-${type}`;
+        messageDiv.style.position = 'fixed';
+        messageDiv.style.top = '20px';
+        messageDiv.style.left = '50%';
+        messageDiv.style.transform = 'translateX(-50%)';
+        messageDiv.style.zIndex = '9999';
+        messageDiv.style.padding = '10px 20px';
+        messageDiv.style.borderRadius = '4px';
+        messageDiv.style.backgroundColor = type === 'success' ? '#d4edda' : '#f8d7da';
+        messageDiv.style.color = type === 'success' ? '#155724' : '#721c24';
+        messageDiv.style.border = type === 'success' ? '1px solid #c3e6cb' : '1px solid #f5c6cb';
+        
+        document.body.appendChild(messageDiv);
+        setTimeout(() => messageDiv.remove(), 5000);
+    }
+
+    // Update in dashboard.js within the confirmDelete event listener:
+    if (confirmDelete) {
+        confirmDelete.addEventListener('click', async () => {
+            const selectedEvents = Array.from(document.querySelectorAll('.event-checkbox:checked'))
+                .map(cb => cb.dataset.eventId);
+
+            try {
+                const response = await fetch('req/entry_delete.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: JSON.stringify({
+                        type: 'events',
+                        ids: selectedEvents
+                    })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    if (deleteModal) {
+                        deleteModal.style.display = 'none';
+                    }
+                    showMessage('Events deleted successfully', 'success');
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 1000);
+                } else {
+                    throw new Error(result.message || 'Error deleting events');
+                }
+            } catch (error) {
+                console.error('Delete error:', error);
+                showMessage('Error deleting events', 'danger');
+            }
+        });
+    }
+
+    // Modal close handlers
+    if (modalClose && cancelDelete) {
+        [modalClose, cancelDelete].forEach(elem => {
+            elem.addEventListener('click', () => {
+                if (deleteModal) {
+                    deleteModal.style.display = 'none';
+                }
+            });
+        });
+    }
+
+    window.addEventListener('click', (e) => {
+        if (deleteModal && e.target === deleteModal) {
+            deleteModal.style.display = 'none';
+        }
+    });
+
+    // Toggle view button handler
+    if (toggleViewBtn && eventsSection) {
+        toggleViewBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            const isViewingSummary = toggleViewBtn.querySelector('.btn-text').textContent === 'Back';
+
+            if (isViewingSummary) {
+                eventsSection.classList.remove('hidden');
+                toggleViewBtn.querySelector('.btn-text').textContent = 'View Summary';
+                toggleViewBtn.querySelector('.feather').className = 'feather feather-eye';
+                toggleViewBtn.querySelector('.feather').innerHTML = `
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                    <circle cx="12" cy="12" r="3"></circle>
+                `;
+            } else {
+                eventsSection.classList.add('hidden');
+                toggleViewBtn.querySelector('.btn-text').textContent = 'Back';
+                toggleViewBtn.querySelector('.feather').className = 'feather feather-arrow-left';
+                toggleViewBtn.querySelector('.feather').innerHTML = `
+                    <line x1="19" y1="12" x2="5" y2="12"></line>
+                    <polyline points="12 19 5 12 12 5"></polyline>
+                `;
+            }
+
+            window.location.href = toggleViewBtn.parentElement.href;
+        });
+    }
+
+    // Entry limit and view toggle handlers
+    function toggleEntryLimitVisibility(isTableView) {
+        if (entryLimitContainer) {
+            entryLimitContainer.style.display = isTableView ? 'block' : 'none';
+        }
+    }
+
+    toggleEntryLimitVisibility(true);
+
+    if (entryLimit) {
+        entryLimit.addEventListener('change', function() {
+            renderTable(allUserData, this.value);
+        });
+    }
+
+    viewToggle.forEach((elem) => {
+        elem.addEventListener("change", function(event) {
+            const view = event.target.value;
+            document.querySelectorAll('.data-view').forEach((el) => {
+                el.style.display = 'none';
+            });
+            document.getElementById(view + 'View').style.display = 'flex';
+            
+            toggleEntryLimitVisibility(view === 'table');
+            
+            if (view === 'chart') {
+                renderCharts(allUserData, allLogsData);
+            } else {
+                renderTable(allUserData, entryLimit.value);
+            }
+        });
+    });
+
+    // Initialize charts if they exist
+    if (typeof initializeCharts === 'function') {
+        initializeCharts(allLogsData);
+    }
+});

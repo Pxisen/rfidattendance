@@ -1,0 +1,238 @@
+document.addEventListener('DOMContentLoaded', () => {
+    let calendar;
+
+    // Modal Elements
+    const eventModal = document.getElementById('eventModal');
+    const deleteConfirmModal = document.getElementById('deleteConfirmModal');
+    
+    // Modal Functions
+    const showModal = (modalElement) => {
+        if (modalElement) {
+            modalElement.style.display = 'block';
+        }
+    };
+
+    const closeModal = (modalElement) => {
+        if (modalElement) {
+            modalElement.style.display = 'none';
+        }
+    };
+
+    // Setup modal close functionality for each modal
+    const setupModalClose = (modalElement) => {
+        if (!modalElement) return; // Skip if modal doesn't exist
+
+        const closeBtn = modalElement.querySelector('.custom-modal-close');
+        const cancelBtn = modalElement.querySelector('.modal-close');
+        
+        if (closeBtn) {
+            closeBtn.onclick = () => closeModal(modalElement);
+        }
+        
+        if (cancelBtn) {
+            cancelBtn.onclick = () => closeModal(modalElement);
+        }
+
+        // Close modal when clicking outside
+        window.onclick = (event) => {
+            if (event.target === modalElement) {
+                closeModal(modalElement);
+            }
+        };
+    };
+
+    // Only setup modals if they exist
+    if (eventModal) setupModalClose(eventModal);
+    if (deleteConfirmModal) setupModalClose(deleteConfirmModal);
+
+    const calendarElement = document.getElementById('calendar');
+    if (calendarElement) {
+        calendar = new FullCalendar.Calendar(calendarElement, {
+            initialView: 'dayGridMonth',
+            headerToolbar: {
+                left: 'prev,next today',
+                center: 'title',
+                right: 'dayGridMonth,timeGridWeek,timeGridDay'
+            },
+            events: 'event_modal.php',
+            selectable: true,
+            select: function(info) {
+                // Only proceed if eventModal exists
+                if (!eventModal) return;
+
+                fetch('event_modal.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `start_date=${info.startStr}&end_date=${info.endStr}`
+                })
+                .then(response => response.text())
+                .then(html => {
+                    const modalBody = eventModal.querySelector('.custom-modal-body');
+                    if (modalBody) {
+                        modalBody.innerHTML = html;
+                        showModal(eventModal);
+                    }
+                })
+                .catch(error => console.error('Error loading form:', error));
+            },
+            eventClick: function(info) {
+                console.log('Event clicked:', info.event);
+                // Implement event details viewing logic here
+            },
+            eventContent: function(arg) {
+                let timeText = '';
+                if (arg.event.allDay) {
+                    timeText = 'All Day';
+                } else {
+                    const start = arg.event.start;
+                    const end = arg.event.end;
+                    if (start && end) {
+                        const startDate = start.toLocaleDateString();
+                        const endDate = end.toLocaleDateString();
+                        if (startDate === endDate) {
+                            // Single day event
+                            timeText = start.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) +
+                                       ' - ' + end.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                        } else {
+                            // Multi-day event
+                            timeText = start.toLocaleDateString([], {month: 'short', day: 'numeric'}) +
+                                       ' - ' + end.toLocaleDateString([], {month: 'short', day: 'numeric'});
+                        }
+                    }
+                }
+
+                if (arg.view.type === 'dayGridMonth') {
+                    return {
+                        html: `
+                            <div class="fc-event-main-frame" style="background-color: ${arg.event.backgroundColor || arg.event.color};">
+                                <div class="fc-event-title-container">
+                                    <div class="fc-event-title fc-sticky">${arg.event.title}</div>
+                                </div>
+                            </div>
+                        `
+                    };
+                } else {
+                    return {
+                        html: `
+                            <div class="fc-event-main-frame" style="background-color: ${arg.event.backgroundColor || arg.event.color};">
+                                <div class="fc-event-time">${timeText}</div>
+                                <div class="fc-event-title-container">
+                                    <div class="fc-event-title fc-sticky">${arg.event.title}</div>
+                                </div>
+                            </div>
+                        `
+                    };
+                }
+            },
+            themeSystem: 'standard',
+            height: 'auto',
+            aspectRatio: 1.8,
+            firstDay: 0,
+            nowIndicator: true,
+            eventTimeFormat: {
+                hour: 'numeric',
+                minute: '2-digit',
+                meridiem: 'short'
+            },
+            dayMaxEvents: true,
+            views: {
+                dayGridMonth: {
+                    dayMaxEvents: 3
+                }
+            }
+        });
+
+        calendar.render();
+    }
+
+    // Handle event form submission
+    document.addEventListener('submit', function(e) {
+        if (e.target.id === 'eventForm') {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            formData.append('action', 'create');
+
+            fetch('event_modal.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    closeModal(eventModal);
+                    if (calendar) calendar.addEvent(data.event);
+                    showMessage(data.message, 'success');
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 1000);
+                } else {
+                    showMessage(data.message, 'danger');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showMessage('An error occurred while creating the event: ' + error.message, 'danger');
+            });
+        }
+    });
+
+    // Handle delete confirmation
+    const confirmDeleteBtn = document.getElementById('confirmDelete');
+    if (confirmDeleteBtn) {
+        confirmDeleteBtn.addEventListener('click', function() {
+            const selectedEvents = document.querySelectorAll('.event-checkbox:checked');
+            const eventIds = Array.from(selectedEvents).map(checkbox => checkbox.dataset.eventId);
+            
+            if (eventIds.length > 0) {
+                fetch('req/entry_delete.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: JSON.stringify({
+                        type: 'events',
+                        ids: eventIds
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        closeModal(deleteConfirmModal);
+                        showMessage('Events deleted successfully', 'success');
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 1000);
+                    } else {
+                        showMessage(data.message || 'Error deleting events', 'danger');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showMessage('Error deleting events', 'danger');
+                });
+            }
+        });
+    }
+
+    function showMessage(message, type) {
+        const messageDiv = document.createElement('div');
+        messageDiv.textContent = message;
+        messageDiv.className = `alert alert-${type}`;
+        messageDiv.style.position = 'fixed';
+        messageDiv.style.top = '20px';
+        messageDiv.style.left = '50%';
+        messageDiv.style.transform = 'translateX(-50%)';
+        messageDiv.style.zIndex = '9999';
+        messageDiv.style.padding = '10px 20px';
+        messageDiv.style.borderRadius = '4px';
+        messageDiv.style.backgroundColor = type === 'success' ? '#d4edda' : '#f8d7da';
+        messageDiv.style.color = type === 'success' ? '#155724' : '#721c24';
+        messageDiv.style.border = type === 'success' ? '1px solid #c3e6cb' : '1px solid #f5c6cb';
+        
+        document.body.appendChild(messageDiv);
+        setTimeout(() => messageDiv.remove(), 5000);
+    }
+});

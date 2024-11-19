@@ -1,0 +1,408 @@
+// Register Chart.js plugins
+Chart.register(ChartDataLabels);
+
+// Chart instance variables
+let userChart = null;
+let departmentChart = null;
+let sessionTypeChart = null;
+let overallAttendanceChart = null;
+
+
+// Table rendering function
+function renderTable(userData, limit = '5') {
+    const tableBody = document.querySelector('#userTable tbody');
+    if (!tableBody) return;
+    
+    let dataToShow = userData;
+    if (limit !== 'all') {
+        dataToShow = userData.slice(0, parseInt(limit));
+    }
+
+    tableBody.innerHTML = dataToShow.map((user, index) => `
+        <tr>
+            <td><i class="fas fa-id-badge"></i>${index + 1}</td>
+            <td class="user-name">${user.fullname}</td>
+            <td>${user.gender}</td>
+            <td>${user.course}</td>
+            <td>${user.department}</td>
+            <td>${user.user_type}</td>
+        </tr>
+    `).join('');
+}
+
+// Render all charts
+function renderCharts(userData, logsData) {
+    renderUserTypeChart(userData);
+    renderDepartmentChart(userData);
+    renderSessionTypeChart(logsData);
+    renderOverallAttendanceChart(logsData);
+}
+
+// Helper functions for data processing
+function countOccurrences(data, key) {
+    return data.reduce((acc, item) => {
+        acc[item[key]] = (acc[item[key]] || 0) + 1;
+        return acc;
+    }, {});
+}
+
+function countUserTypes(userData) {
+    return userData.reduce((acc, user) => {
+        acc[user.user_type] = (acc[user.user_type] || 0) + 1;
+        return acc;
+    }, {});
+}
+
+function countDepartments(userData) {
+    return userData.reduce((acc, user) => {
+        acc[user.department] = (acc[user.department] || 0) + 1;
+        return acc;
+    }, {});
+}
+
+function renderUserTypeChart(userData) {
+    const ctx = document.getElementById('userChart').getContext('2d');
+    const userTypes = countUserTypes(userData);
+    const total = Object.values(userTypes).reduce((sum, count) => sum + count, 0);
+
+    if (userChart) {
+        userChart.destroy();
+    }
+
+    userChart = new Chart(ctx, {
+        type: 'pie',
+        data: {
+            labels: Object.keys(userTypes),
+            datasets: [{
+                data: Object.values(userTypes),
+                backgroundColor: [
+                    'rgba(255, 99, 132, 0.8)',
+                    'rgba(54, 162, 235, 0.8)',
+                    'rgba(255, 206, 86, 0.8)',
+                    'rgba(75, 192, 192, 0.8)',
+                    'rgba(153, 102, 255, 0.8)'
+                ]
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                title: {
+                    display: true,
+                    text: 'User Types Distribution'
+                },
+                legend: {
+                    position: 'bottom'
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            const label = context.label || '';
+                            const value = context.raw || 0;
+                            const percentage = ((value / total) * 100).toFixed(1);
+                            return `${label}: ${value} (${percentage}%)`;
+                        }
+                    }
+                },
+                datalabels: {
+                    formatter: (value, ctx) => {
+                        const dataset = ctx.chart.data.datasets[0];
+                        const total = dataset.data.reduce((acc, data) => acc + data, 0);
+                        const percentage = ((value / total) * 100).toFixed(1) + '%';
+                        return percentage;
+                    },
+                    color: '#fff',
+                    font: {
+                        weight: 'bold',
+                        size: 14
+                    }
+                }
+            }
+        },
+        plugins: [ChartDataLabels]
+    });
+}
+function renderDepartmentChart(userData) {
+    const ctx = document.getElementById('departmentChart').getContext('2d');
+    const departments = countDepartments(userData);
+
+    if (departmentChart) {
+        departmentChart.destroy();
+    }
+
+    departmentChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: Object.keys(departments),
+            datasets: [{
+                label: 'Number of Users',
+                data: Object.values(departments),
+                backgroundColor: [
+                    'rgba(255, 99, 132, 0.8)',   // Pink
+                    'rgba(54, 162, 235, 0.8)',   // Blue
+                    'rgba(255, 206, 86, 0.8)',   // Yellow
+                    'rgba(75, 192, 192, 0.8)',   // Teal
+                    'rgba(153, 102, 255, 0.8)',  // Purple
+                    'rgba(255, 159, 64, 0.8)',   // Orange
+                    'rgba(76, 175, 80, 0.8)',    // Green
+                    'rgba(158, 158, 158, 0.8)'   // Gray
+                ],
+                borderColor: [
+                    'rgba(255, 99, 132, 1)',     // Pink
+                    'rgba(54, 162, 235, 1)',     // Blue
+                    'rgba(255, 206, 86, 1)',     // Yellow
+                    'rgba(75, 192, 192, 1)',     // Teal
+                    'rgba(153, 102, 255, 1)',    // Purple
+                    'rgba(255, 159, 64, 1)',     // Orange
+                    'rgba(76, 175, 80, 1)',      // Green
+                    'rgba(158, 158, 158, 1)'     // Gray
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                title: {
+                    display: true,
+                    text: 'User Distribution by Department'
+                },
+                legend: {
+                    display: false
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            const value = context.raw;
+                            const total = Object.values(departments).reduce((sum, val) => sum + val, 0);
+                            const percentage = ((value / total) * 100).toFixed(1);
+                            return `${value} users (${percentage}%)`;
+                        }
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Number of Users'
+                    }
+                },
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Department'
+                    }
+                }
+            }
+        }
+    });
+}
+
+// Update this function to filter data based on course
+function renderSessionTypeChart(filteredLogsData) {
+    const ctx = document.getElementById('sessionTypeChart').getContext('2d');
+    const sessionTypes = countOccurrences(filteredLogsData, 'session_type');
+
+    if (sessionTypeChart) {
+        sessionTypeChart.destroy();
+    }
+
+    const total = Object.values(sessionTypes).reduce((sum, count) => sum + count, 0);
+
+    if (total === 0) {
+        // Display a message when there's no data
+        ctx.font = '20px Arial';
+        ctx.fillText('No data available for the selected course', 10, 50);
+        return;
+    }
+
+    sessionTypeChart = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: Object.keys(sessionTypes),
+            datasets: [{
+                data: Object.values(sessionTypes),
+                backgroundColor: [
+                    'rgb(103, 58, 183)',
+                    'rgb(255, 99, 132)',
+                    'rgb(0, 188, 212)',
+                    'rgb(255, 152, 0)',
+                    'rgb(76, 175, 80)',
+                    'rgb(33, 150, 243)',
+                    'rgb(255, 235, 59)'
+                ],
+                borderWidth: 0
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            cutout: '60%',
+            plugins: {
+                title: {
+                    display: true,
+                    text: 'Session Types Distribution'
+                },
+                legend: {
+                    position: 'right',
+                    labels: {
+                        usePointStyle: true,
+                        pointStyle: 'circle'
+                    }
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            const label = context.label || '';
+                            const value = context.raw || 0;
+                            const percentage = ((value / total) * 100).toFixed(1);
+                            return `${label}: ${percentage}%`;
+                        }
+                    }
+                },
+                datalabels: {
+                    color: '#fff',
+                    font: {
+                        weight: 'bold',
+                        size: 12
+                    },
+                    formatter: (value, ctx) => {
+                        const percentage = ((value / total) * 100).toFixed(1);
+                        return percentage + '%';
+                    }
+                }
+            }
+        },
+        plugins: [ChartDataLabels]
+    });
+}
+
+// Update this function to filter data based on course
+function renderOverallAttendanceChart(filteredLogsData) {
+    const ctx = document.getElementById('overallAttendanceChart').getContext('2d');
+    const attendanceStatuses = {
+        'Very Early': 0,
+        'On Time': 0,
+        'Late': 0,
+        'Left Early': 0,
+        'Overtime': 0,
+        'Absent': 0
+    };
+
+    filteredLogsData.forEach(log => {
+        if (log.in_status === log.out_status) {
+            attendanceStatuses[log.in_status] = (attendanceStatuses[log.in_status] || 0) + 1;
+        } else {
+            attendanceStatuses[log.in_status] = (attendanceStatuses[log.in_status] || 0) + 1;
+            attendanceStatuses[log.out_status] = (attendanceStatuses[log.out_status] || 0) + 1;
+        }
+    });
+
+    // Remove any keys with undefined or null values
+    Object.keys(attendanceStatuses).forEach(key => {
+        if (attendanceStatuses[key] === undefined || attendanceStatuses[key] === null) {
+            delete attendanceStatuses[key];
+        }
+    });
+
+    if (overallAttendanceChart) {
+        overallAttendanceChart.destroy();
+    }
+
+    overallAttendanceChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: Object.keys(attendanceStatuses),
+            datasets: [{
+                label: 'Attendance Count',
+                data: Object.values(attendanceStatuses),
+                backgroundColor: [
+                    'rgba(54, 162, 235, 0.8)',
+                    'rgba(75, 192, 192, 0.8)',
+                    'rgba(255, 206, 86, 0.8)',
+                    'rgba(255, 159, 64, 0.8)',
+                    'rgba(153, 102, 255, 0.8)',
+                    'rgba(255, 99, 132, 0.8)'
+                ],
+                borderColor: [
+                    'rgba(54, 162, 235, 1)',
+                    'rgba(75, 192, 192, 1)',
+                    'rgba(255, 206, 86, 1)',
+                    'rgba(255, 159, 64, 1)',
+                    'rgba(153, 102, 255, 1)',
+                    'rgba(255, 99, 132, 1)'
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                title: {
+                    display: true,
+                    text: 'Overall Attendance Performance'
+                },
+                legend: {
+                    display: false
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            const label = context.label || '';
+                            const value = context.raw || 0;
+                            const total = Object.values(attendanceStatuses).reduce((sum, val) => sum + val, 0);
+                            let percentage = '0.0';
+                            if (total > 0 && value > 0) {
+                                percentage = ((value / total) * 100).toFixed(1);
+                            }
+                            return `${label}: ${value} (${percentage}%)`;
+                        }
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Count'
+                    }
+                },
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Attendance Status'
+                    }
+                }
+            }
+        }
+    });
+}
+
+function updateAttendanceCharts(selectedCourse, logsData) {
+    const filteredLogsData = selectedCourse === 'all' 
+        ? logsData 
+        : logsData.filter(log => log.course === selectedCourse);
+    
+    renderSessionTypeChart(filteredLogsData);
+    renderOverallAttendanceChart(filteredLogsData);
+}
+
+function initializeCharts(logsData) {
+    const courseFilter = document.getElementById('courseFilter');
+    if (courseFilter) {
+        courseFilter.addEventListener('change', function() {
+            updateAttendanceCharts(this.value, logsData);
+        });
+    }
+    
+    // Initialize charts with all data
+    updateAttendanceCharts('all', logsData);
+}
+
+

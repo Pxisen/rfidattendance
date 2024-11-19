@@ -1,0 +1,630 @@
+// Preloader functionality with optimized loading
+document.addEventListener('DOMContentLoaded', function() {
+    const preloader = document.getElementById('preloader');
+    const mainContent = document.querySelector('main');
+    const footer = document.querySelector('footer');
+    let resourcesLoaded = false;
+    let minDisplayTimeElapsed = false;
+    const MIN_DISPLAY_TIME = 800;
+    
+    const hidePreloader = () => {
+        if (resourcesLoaded && minDisplayTimeElapsed) {
+            preloader.classList.add('preloader-hidden');
+            
+            setTimeout(() => {
+                if (mainContent) {
+                    mainContent.style.opacity = '1';
+                }
+                
+                setTimeout(() => {
+                    if (footer) {
+                        footer.style.opacity = '1';
+                    }
+                }, 200);
+                
+                setTimeout(() => {
+                    preloader.style.display = 'none';
+                }, 500);
+            }, 100);
+        }
+    };
+    
+    setTimeout(() => {
+        minDisplayTimeElapsed = true;
+        hidePreloader();
+    }, MIN_DISPLAY_TIME);
+    
+    window.addEventListener('load', () => {
+        resourcesLoaded = true;
+        hidePreloader();
+    });
+    
+    setTimeout(() => {
+        if (!resourcesLoaded) {
+            resourcesLoaded = true;
+            hidePreloader();
+        }
+    }, 3000);
+});
+
+// Navigation hover functionality
+let list = document.querySelectorAll(".navigation li");
+
+function activeLink() {
+    list.forEach((item) => {
+        item.classList.remove("hovered");
+    });
+    this.classList.add("hovered");
+}
+
+list.forEach((item) => item.addEventListener("mouseover", activeLink));
+
+// Menu Toggle functionality
+let toggle = document.querySelector(".toggle");
+let navigation = document.querySelector(".navigation");
+let main = document.querySelector(".main");
+
+toggle.onclick = function () {
+    navigation.classList.toggle("active");
+    if (main) {
+        main.classList.toggle("active");
+    }
+};
+
+document.querySelector('.toggle').addEventListener('click', function () {
+    const navigation = document.querySelector('.navigation');
+    const toggleIcon = document.getElementById('toggle-icon');
+
+    navigation.classList.toggle('expanded');
+
+    if (navigation.classList.contains('expanded')) {
+        toggleIcon.classList.remove('fa-bars');
+        toggleIcon.classList.add('fa-times');
+    } else {
+        toggleIcon.classList.remove('fa-times');
+        toggleIcon.classList.add('fa-bars');
+    }
+});
+
+// Enhanced Notification and Feedback System
+$(document).ready(function() {
+    // Feedback Form Handling
+    $('#feedbackForm').on('submit', function(e) {
+        e.preventDefault();
+        
+        // Get the concern type from the form
+        const concernType = $(this).find('select[name="concernType"]').val();
+        
+        // Disable submit button to prevent double submission
+        const submitBtn = $(this).find('button[type="submit"]');
+        submitBtn.prop('disabled', true);
+        
+        $.ajax({
+            type: 'POST',
+            url: '/rfidattendance/req/submit_feedback.php',
+            data: $(this).serialize(),
+            dataType: 'json',
+            success: function(response) {
+                if(response.success) {
+                    // Show different messages based on concern type
+                    if(concernType === 'request') {
+                        alert('Request Submitted Successfully. This will be reviewed momentarily.');
+                    } else {
+                        alert('Thank you for your feedback!');
+                    }
+                    
+                    $('#feedbackModal').modal('hide');
+                    $('#feedbackForm')[0].reset();
+                    loadNotifications();
+                } else {
+                    alert(response.message || 'Error submitting feedback. Please try again.');
+                }
+            },
+            error: function() {
+                alert('Error submitting feedback. Please try again.');
+            },
+            complete: function() {
+                // Re-enable submit button
+                submitBtn.prop('disabled', false);
+            }
+        });
+    });
+
+    // Add this to your existing JavaScript
+    $('#concernType').on('change', function() {
+        if ($(this).val() === 'request') {
+            $('#courseGroup').show();
+            $('#course').prop('required', true);
+        } else {
+            $('#courseGroup').hide();
+            $('#course').prop('required', false);
+        }
+    });
+
+    const notificationSystem = {
+        init() {
+            this.notificationIcon = $('#notificationIcon');
+            this.notificationPanel = $('#notificationPanel');
+            this.notificationBadge = $('#notificationBadge');
+            this.notificationList = $('.notification-list');
+            this.emptyState = $('.notification-empty-state');
+            this.loadingSpinner = $('.notification-loading');
+            
+            this.bindEvents();
+            this.startPolling();
+            this.loadNotifications();
+        },
+    
+        bindEvents() {
+            this.notificationIcon.on('click', (e) => {
+                e.stopPropagation();
+                this.togglePanel();
+                this.loadNotifications();
+            });
+    
+            $('#markAllRead').on('click', (e) => {
+                e.stopPropagation();
+                this.markAllAsRead();
+            });
+    
+            $(document).on('click', (e) => {
+                if (!$(e.target).closest('.notification-panel, .notification-icon').length) {
+                    this.notificationPanel.hide();
+                }
+            });
+        },
+    
+        loadNotifications() {
+            this.showLoading();
+            
+            $.ajax({
+                url: '/rfidattendance/data/get_notifications.php',
+                type: 'GET',
+                dataType: 'json',
+                success: (data) => data.success ? this.handleSuccessfulLoad(data) : this.showError(),
+                error: () => this.showError(),
+                complete: () => this.hideLoading()
+            });
+        },
+    
+        handleSuccessfulLoad(data) {
+            // Modified to properly count both feedback and request notifications
+            const notifications = data.notifications || [];
+            const unreadCount = notifications.filter(notification => 
+                notification.status === 'unread' && 
+                (notification.type === 'feedback' || notification.type === 'request')
+            ).length;
+            
+            this.updateNotificationPanel(data);
+            this.updateBadge(unreadCount);
+        }, 
+    
+        updateNotificationPanel(data) {
+            this.userRole = data.userRole;
+            
+            if (!data.notifications?.length) {
+                this.showEmptyState();
+                return;
+            }
+        
+            this.hideEmptyState();
+            const notificationsHtml = data.notifications.map(this.createNotificationHtml.bind(this)).join('');
+            
+            this.notificationList.html(notificationsHtml);
+        
+            $('.notification-item').on('click', (e) => {
+                this.handleNotificationClick($(e.currentTarget).data('id'));
+            });
+        },    
+    
+        createNotificationHtml(notification) {
+            const isDetailedNotification = 
+                (notification.type === 'feedback' && this.userRole === 'IT') ||
+                (notification.type === 'request' && this.userRole === 'dean');
+            
+            const content = isDetailedNotification 
+                ? this.createDetailedNotification(notification)
+                : this.createStandardNotification(notification);
+        
+            return `
+                <div class="notification-item ${notification.status === 'unread' ? 'unread' : ''}" 
+                    data-id="${notification.id}">
+                    ${content}
+                </div>
+            `;
+        },
+
+        createDetailedNotification(notification) {
+            const escapedData = JSON.stringify({
+                ...notification.feedback,
+                type: notification.type  // Add type to distinguish between feedback and request
+            }).replace(/'/g, '&apos;');
+            
+            return `
+                <div class="notification-content" data-feedback='${escapedData}'>
+                    <div class="notification-icon">
+                        <i class="fas ${this.getNotificationIcon(notification.type)}"></i>
+                    </div>
+                    <div class="notification-details">
+                        <div class="notification-message">
+                            ${notification.message}
+                            <span class="feedback-status status-${notification.feedback.status}">
+                                ${notification.feedback.status}
+                            </span>
+                        </div>
+                        <div class="feedback-preview">
+                            ${this.truncateText(notification.feedback.comment, 50)}
+                        </div>
+                        <div class="notification-time">
+                            ${this.formatTimeAgo(new Date(notification.created_at))}
+                        </div>
+                    </div>
+                </div>
+            `;
+        },
+    
+        createFeedbackNotification(notification) {
+            const escapedData = JSON.stringify({
+                ...notification.feedback,
+                type: notification.type  // Add type to distinguish between feedback and request
+            }).replace(/'/g, '&apos;');
+            
+            return `
+                <div class="notification-content" data-feedback='${escapedData}'>
+                    <div class="notification-icon">
+                        <i class="fas ${this.getNotificationIcon(notification.type)}"></i>
+                    </div>
+                    <div class="notification-details">
+                        <div class="notification-message">
+                            ${notification.message}
+                            <span class="feedback-status status-${notification.feedback.status}">
+                                ${notification.feedback.status}
+                            </span>
+                        </div>
+                        <div class="feedback-preview">
+                            ${this.truncateText(notification.feedback.comment, 50)}
+                        </div>
+                        <div class="notification-time">
+                            ${this.formatTimeAgo(new Date(notification.created_at))}
+                        </div>
+                    </div>
+                </div>
+            `;
+        },        
+    
+        createStandardNotification(notification) {
+            // Wrap sender name in strong tags when it's a feedback notification
+            const message = notification.type === 'feedback' 
+                ? notification.message.replace(/(from )([^<]+)/, '$1<strong>$2</strong>')
+                : notification.message;
+        
+            return `
+                <div class="notification-content" data-reference-id="${notification.reference_id || ''}">
+                    <div class="notification-icon">
+                        <i class="fas ${this.getNotificationIcon(notification.type)}"></i>
+                    </div>
+                    <div class="notification-details">
+                        <div class="notification-message">${message}</div>
+                        <div class="notification-time">
+                            ${this.formatTimeAgo(new Date(notification.created_at))}
+                        </div>
+                    </div>
+                </div>
+            `;
+        },    
+    
+        truncateText(text, maxLength) {
+            if (!text) return '';
+            text = text.toString();
+            return text.length > maxLength ? `${text.substring(0, maxLength)}...` : text;
+        },
+    
+        getStatusBadgeClass(status) {
+            const classes = {
+                'pending': 'warning',
+                'reviewed': 'info',
+                'resolved': 'success',
+                'archived': 'secondary'
+            };
+            return classes[status] || 'primary';
+        },
+    
+        showFeedbackModal(notificationElement) {
+            const feedbackJson = notificationElement.find('.notification-content').attr('data-feedback');
+            const feedbackData = JSON.parse(feedbackJson);
+            const modal = $('#feedbackStatusModal');
+            const isRequest = feedbackData.type === 'request';
+            
+            // Update modal title based on type
+            modal.find('.modal-title').text(isRequest ? 'Request Details' : 'Feedback Details');
+            
+            // Update modal content
+            modal.find('.feedback-info').html(this.createFeedbackModalContent(feedbackData));
+            
+            // Update status options based on type AND user role
+            const statusSelect = modal.find('.status-select');
+            statusSelect.empty();
+            
+            if (this.userRole === 'dean' && isRequest) {
+                // Dean's options for requests
+                statusSelect.append(`
+                    <option value="">Select update status</option>
+                    <option value="accept">Accept</option>
+                    <option value="decline">Decline</option>
+                `);
+            } else if (this.userRole === 'IT' && !isRequest) {
+                // IT's options for feedback
+                statusSelect.append(`
+                    <option value="">Select update status</option>
+                    <option value="pending">Pending</option>
+                    <option value="reviewed">Reviewed</option>
+                    <option value="resolved">Resolved</option>
+                    <option value="archived">Archived</option>
+                `);
+            }
+            
+            // Set current status if it matches available options
+            if (feedbackData.status && 
+                statusSelect.find(`option[value="${feedbackData.status}"]`).length > 0) {
+                statusSelect.val(feedbackData.status);
+            }
+            
+            modal.find('.feedback-comment-wrapper').css({
+                'max-height': '200px',
+                'overflow-y': 'auto',
+                'white-space': 'pre-wrap',
+                'word-break': 'break-word'
+            });
+            
+            modal.data('feedbackId', feedbackData.id);
+            modal.data('type', feedbackData.type);
+            modal.modal('show');
+            
+            modal.find('.update-status-btn').off('click').on('click', () => {
+                this.handleStatusUpdate();
+            });
+        },
+    
+        createFeedbackModalContent(feedbackData) {
+            return `
+                <div class="feedback-detail">
+                    <div class="form-group">
+                        <label><b>From:</b></label>
+                        <p class="form-control-static">${this.escapeHtml(feedbackData.name)} (${this.escapeHtml(feedbackData.email)})</p>
+                    </div>
+                    <div class="form-group">
+                        <label><b>Date:</b></label>
+                        <p class="form-control-static">${new Date(feedbackData.created_at).toLocaleString()}</p>
+                    </div>
+                    <div class="form-group">
+                        <label><b>Status:</b></label>
+                        <p class="form-control-static">
+                            <span class="badge badge-${this.getStatusBadgeClass(feedbackData.status)}">
+                                ${feedbackData.status.charAt(0).toUpperCase() + feedbackData.status.slice(1)}
+                            </span>
+                        </p>
+                    </div>
+                    <div class="form-group">
+                        <label><b>Comment:</b></label>
+                        <div class="form-control-static feedback-comment-wrapper">
+                            ${this.escapeHtml(feedbackData.comment)}
+                        </div>
+                    </div>
+                </div>
+            `;
+        },
+        
+        escapeHtml(unsafe) {
+            if (!unsafe) return '';
+            return unsafe
+                .toString()
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        },
+    
+        getNotificationIcon(type) {
+            const icons = {
+                'feedback': 'fa-comment-alt',
+                'system': 'fa-cog',
+                'alert': 'fa-exclamation-circle',
+                'default': 'fa-bell'
+            };
+            return icons[type] || icons.default;
+        },
+    
+        handleStatusUpdate() {
+            const modal = $('#feedbackStatusModal');
+            const feedbackId = modal.data('feedbackId');
+            const newStatus = modal.find('.status-select').val();
+            const type = modal.data('type');
+            
+            if (!feedbackId) {
+                alert('Error: Could not find feedback ID');
+                return;
+            }
+        
+            const updateBtn = modal.find('.update-status-btn');
+            const originalText = updateBtn.text();
+            updateBtn.prop('disabled', true).text('Updating...');
+        
+            $.ajax({
+                url: '/rfidattendance/req/update_feedback_status.php',
+                type: 'POST',
+                data: JSON.stringify({
+                    feedbackId,
+                    status: newStatus,
+                    type: type,
+                    reference_id: feedbackId,
+                    create_notification: true
+                }),
+                contentType: 'application/json',
+                dataType: 'json',
+                success: (response) => {
+                    if (response.success) {
+                        this.showUpdateSuccess();
+                        this.loadNotifications();
+                        modal.modal('hide');
+                    } else {
+                        alert('Failed to update status: ' + response.message);
+                    }
+                },
+                error: (xhr) => {
+                    let errorMessage = 'An error occurred while updating the status';
+                    try {
+                        const errorResponse = JSON.parse(xhr.responseText);
+                        if (errorResponse.message) {
+                            errorMessage = errorResponse.message;
+                        }
+                    } catch (e) {}
+                    alert(errorMessage);
+                },
+                complete: () => {
+                    updateBtn.prop('disabled', false).text(originalText);
+                }
+            });
+        },
+    
+        showUpdateSuccess() {
+            if ($.fn.toast) {
+                $('.toast-container').append(`
+                    <div class="toast" role="alert">
+                        <div class="toast-header">
+                            <strong class="me-auto">Success</strong>
+                            <button type="button" class="btn-close" data-bs-dismiss="toast"></button>
+                        </div>
+                        <div class="toast-body">Status updated successfully</div>
+                    </div>
+                `);
+                $('.toast').toast('show');
+            } else {
+                alert('Status updated successfully');
+            }
+        },
+    
+        getFeedbackPreview(notification) {
+            if (this.userRole === 'IT' && notification.type === 'feedback' && notification.feedback_comment) {
+                return `
+                    <div class="feedback-preview">
+                        <strong>${notification.feedback_name}</strong>: 
+                        "${this.truncateText(notification.feedback_comment, 50)}"
+                    </div>
+                `;
+            }
+            return '';
+        },
+    
+        updateBadge(count) {
+            if (count > 0) {
+                this.notificationBadge
+                    .show()
+                    .text(count > 99 ? '99+' : count)
+                    .addClass('pulse');
+                
+                // Add a class to the notification icon to show it's active
+                this.notificationIcon.addClass('has-notifications');
+                
+                setTimeout(() => {
+                    this.notificationBadge.removeClass('pulse');
+                }, 1000);
+            } else {
+                this.notificationBadge.hide();
+                this.notificationIcon.removeClass('has-notifications');
+            }
+        },
+    
+        showLoading() {
+            this.loadingSpinner.show();
+            this.notificationList.hide();
+        },
+    
+        hideLoading() {
+            this.loadingSpinner.hide();
+            this.notificationList.show();
+        },
+    
+        showEmptyState() {
+            this.emptyState.show();
+            this.notificationList.hide();
+        },
+    
+        hideEmptyState() {
+            this.emptyState.hide();
+            this.notificationList.show();
+        },
+    
+        showError() {
+            this.notificationList.html(`
+                <div class="notification-error">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <p>Error loading notifications</p>
+                </div>
+            `);
+        },
+    
+        markAllAsRead() {
+            $.ajax({
+                url: '/rfidattendance/data/mark_notifications.php',
+                type: 'POST',
+                data: JSON.stringify({}),
+                contentType: 'application/json',
+                success: () => this.loadNotifications()
+            });
+        },
+    
+        handleNotificationClick(notificationId) {
+            const notificationItem = $(`.notification-item[data-id="${notificationId}"]`);
+        
+            $.ajax({
+                url: '/rfidattendance/data/mark_notifications.php',
+                type: 'POST',
+                data: JSON.stringify({ notificationId }),
+                contentType: 'application/json',
+                success: (data) => {
+                    if (data.success) {
+                        notificationItem.removeClass('unread');
+                        
+                        const currentCount = parseInt(this.notificationBadge.text()) || 0;
+                        if (currentCount > 0) {
+                            this.updateBadge(currentCount - 1);
+                        }
+        
+                        // Check for feedback data and user role
+                        const feedbackData = notificationItem.find('.notification-content').attr('data-feedback');
+                        if (feedbackData && (this.userRole === 'IT' || this.userRole === 'dean')) {
+                            this.showFeedbackModal(notificationItem);
+                        }
+                    }
+                }
+            });
+        },
+    
+        formatTimeAgo(date) {
+            const now = new Date();
+            const diffInSeconds = Math.floor((now - date) / 1000);
+            
+            if (diffInSeconds < 60) return 'Just now';
+            if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)}m ago`;
+            if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)}h ago`;
+            if (diffInSeconds < 604800) return `${Math.floor(diffInSeconds / 86400)}d ago`;
+            return date.toLocaleDateString();
+        },
+    
+        togglePanel() {
+            this.notificationPanel.toggle();
+            if (this.notificationPanel.is(':visible')) {
+                this.loadNotifications();
+            }
+        },
+    
+        startPolling() {
+            setInterval(() => this.loadNotifications(), 30000);
+        }
+    };
+    
+    $(document).ready(() => {
+        notificationSystem.init();
+    });
+});
